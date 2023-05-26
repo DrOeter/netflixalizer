@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'globals.dart' as globals;
+
 Future httpRequest() async {
   final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
 
@@ -31,13 +33,58 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ScrollableWidget(),
+      home: ScrollableWidget(),
     );
   }
 }
 
-class ScrollableWidget extends StatelessWidget {
+class ScrollableWidget extends StatefulWidget {
   const ScrollableWidget({super.key});
+  @override
+  _ScrollableWidgetState createState() => _ScrollableWidgetState();
+}
+
+class _ScrollableWidgetState extends State<ScrollableWidget> {
+  String genre = '28';
+  String contentType = 'Movie';
+
+  void _filterButtonHandler(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  DropdownButton(
+                    value: genre,
+                    items: globals.movieGenreItems,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        genre = newValue!;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  DropdownButton(
+                    value: contentType,
+                    items: globals.contentTypeItems,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        contentType = newValue!;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,10 +96,15 @@ class ScrollableWidget extends StatelessWidget {
           direction: Axis.horizontal,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Expanded(child: Row(
+            Expanded(child: Row(
                 children: [
-                  Text('Netflixalizer'),
-                  Text('sdfds')
+                  const Text('Netflixalizer'),
+                  TextButton(
+                    onPressed: () {
+                      _filterButtonHandler(context);
+                    },
+                    child: const Text('Filter'),
+                  ),
                 ],
               ),
             ), // Empty widget to take up the remaining space
@@ -93,7 +145,7 @@ class ScrollableWidget extends StatelessWidget {
 }
 
 class SearchBarWidget extends StatefulWidget {
-  const SearchBarWidget({super.key});
+  const SearchBarWidget({super.key}); 
 
   @override
   _SearchBarWidgetState createState() => _SearchBarWidgetState();
