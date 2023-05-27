@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'globals.dart' as globals;
+import 'providers.dart' as providers;
 
 void main() {
   runApp(const Netflixalizer());
@@ -185,20 +186,85 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
             String coverUrl = buildUrl('image', item['poster_path'].toString());
             List<dynamic> genres = item['genre_ids'];
             Map<String, dynamic>? providersMap = item['providers'];
-            List<Text> providersList = [];
+            List<Text> providersCountryList = [];
+            List<String> providersList = [];
+            List<Container> logoList = [];
 
             if(genres.contains(int.parse(genre)) || genre == '0'){
               if(providersMap != null){
-                List<String> providerCountryList = providersMap.keys.toList();
+                List<String> countryList = providersMap.keys.toList();
 
                 for (var country in globals.countryList) {
-                  for (var providerCountry in providerCountryList) {
+                  for (var providerCountry in countryList) {
                     if(country == providerCountry){
-                      providersList.add( Text( country ));
+                      providersCountryList.add( Text( country ));
                     }
-                    if(providersList.length == 16) break;
+                    if(providersCountryList.length == 16) break;
                   }
-                  if(providersList.length == 16) break;
+                  if(providersCountryList.length == 16) break;
+                }
+
+                for (var provider in providers.providerList) {
+                  for (var country in countryList) {
+                    if(providersMap[country]['flatrate'] != null) {
+                      for (var providerFlatrate in providersMap[country]['flatrate']) {
+                        if(providerFlatrate['provider_id'] == provider['provider_id']){
+                          var url = buildUrl('image', provider['logo_path']);
+
+                          if(!providersList.contains(url)){
+                            providersList.add(url);
+                          }
+                        }
+                        if(providersList.length == 6) break;
+                      }
+                    }
+                    if(providersMap[country]['rent'] != null) {
+                      for (var providerFlatrate in providersMap[country]['rent']) {
+                        if(providerFlatrate['provider_id'] == provider['provider_id']){
+                          var url = buildUrl('image', provider['logo_path']);
+
+                          if(!providersList.contains(url)){
+                            providersList.add(url);
+                          }
+                        }
+                        if(providersList.length == 6) break;
+                      }
+                    }
+                    if(providersMap[country]['buy'] != null) {
+                      for (var providerFlatrate in providersMap[country]['buy']) {
+                        if(providerFlatrate['provider_id'] == provider['provider_id']){
+                          var url = buildUrl('image', provider['logo_path']);
+
+                          if(!providersList.contains(url)){
+                            providersList.add(url);
+                          }
+                        }
+                        if(providersList.length == 6) break;
+                      }
+                    }
+                    if(providersList.length == 6) break;
+                  }
+                }
+
+                for (var provider in providersList) {
+                  logoList.add(
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(8),
+                          topRight: Radius.circular(8),
+                          bottomLeft: Radius.circular(8),
+                          bottomRight: Radius.circular(8),
+                        ),
+                        image: DecorationImage(
+                          image: NetworkImage( provider ),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  );
                 }
               }
 
@@ -209,50 +275,63 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 150,
-                        height: 225,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(10),
-                            bottomLeft: Radius.circular(10),
-                            bottomRight: Radius.circular(10),
+                  child: Column(
+                    children: [ 
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 150,
+                            height: 225,
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                                bottomLeft: Radius.circular(10),
+                                bottomRight: Radius.circular(10),
+                              ),
+                              image: DecorationImage(
+                                image: NetworkImage(coverUrl),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                          image: DecorationImage(
-                            image: NetworkImage(coverUrl),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8, right: 8),
-                              child: Text(
-                                title,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8, right: 8),
+                                  child: Text(
+                                    title,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4, right: 8),
+                                  child: Wrap(
+                                    spacing: 6,
+                                    children: providersCountryList,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4, right: 8),
-                              child: Wrap(
-                                spacing: 6,
-                                children: providersList,
-                              ),
-                            ),
-                          ],
+                          ),
+                        ],
+                      ),
+                      Text('', style: const TextStyle(
+                        fontSize: 10,
+                      )),
+                      Expanded(
+                        child: Wrap(
+                          children: logoList,
+                          spacing: 5,
                         ),
                       ),
-                    ],
+                    ]
                   ),
                 ),
               );
