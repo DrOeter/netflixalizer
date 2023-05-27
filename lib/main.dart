@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -39,7 +40,8 @@ class Netflixalizer extends StatelessWidget {
 }
 
 class ScrollableWidget extends StatefulWidget {
-  const ScrollableWidget({super.key});
+  const ScrollableWidget({Key? key}) : super(key: key);
+
   @override
   _ScrollableWidgetState createState() => _ScrollableWidgetState();
 }
@@ -48,8 +50,16 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
   String genre = '28';
   String contentType = 'movie';
   int loadCounter = 1;
+  int itemCounter = 1;
   int itemIndex = 0;
-  dynamic response;
+  int pageIndex = 1;
+  List<dynamic> trendingList = [];
+  List<dynamic> imagesList = [];
+  List<dynamic> imageList = [];
+
+  String buildUrl(String key, String value){
+  return globals.requests[key]!.replaceFirst('{}', value);
+  }
 
   void _filterButtonHandler(BuildContext context) {
     showDialog(
@@ -89,6 +99,57 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
     );
   }
 
+  Future<void> fetchData(String url, String key, List<dynamic>? dataList, Map<String, dynamic>? data) async {
+    final response = await http.get(Uri.parse( url ));
+
+    if (response.statusCode == 200) {
+      dynamic responseJson = jsonDecode(response.body);
+
+      setState(() {
+        if(dataList != null){
+          dataList.addAll(responseJson[key]);
+        }
+        else if(data != null){
+          data.addAll(responseJson);
+        }
+      }); 
+    } 
+    else {
+      throw Exception('Request Failed ${response.statusCode}');
+    }
+  }
+
+  Future<void> fetchProviderData() async {
+    Map<String, dynamic> providersMap = {};
+
+    await fetchData(
+      buildUrl('trendingMovies', pageIndex.toString()),
+      'results',
+      trendingList,
+      null
+    );
+
+    for (var i = itemIndex + 1; i < trendingList.length - 1; i++) {
+      await fetchData(
+        buildUrl('providersMovies', trendingList[i]['id'].toString()),
+        'results',
+        null,
+        providersMap
+      );
+
+      trendingList[itemIndex]['providers'] = providersMap['results'];
+      providersMap = {};
+      itemIndex = i;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProviderData();
+    pageIndex += 1; 
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,7 +160,8 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
           direction: Axis.horizontal,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(child: Row(
+            Expanded(
+              child: Row(
                 children: [
                   const Text('Netflixalizer'),
                   TextButton(
@@ -110,49 +172,108 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
                   ),
                 ],
               ),
-            ), // Empty widget to take up the remaining space
+            ),
             const SearchBarWidget(),
-            Expanded(child: Container()), // Empty widget to take up the remaining space
+            Expanded(child: Container()),
           ],
         ),
       ),
       body: GridView.builder(
-        itemCount: 100, // Replace with the actual number of items you have
+        itemCount: trendingList.length + 1, // +1 for loading indicator at the end
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4, // Number of tiles per row
+          crossAxisCount: 4,
         ),
-        itemBuilder: (BuildContext context, int index) {  
-/*
-          if(index % 20 == 0){
-            response = httpRequest(
-              'https://api.themoviedb.org/3/trending/movie/week?api_key=e2c7d1908816457a2156268c1fb5d7ae&page=$loadCounter'
-            );
-            loadCounter++;
-            itemIndex = 0;
-          }
+        itemBuilder: (BuildContext context, int index) {
+          if (index < trendingList.length) {
+            dynamic item = trendingList[index];
+            String title = item['original_title'];
+            String coverUrl = buildUrl('image', item['poster_path'].toString());
+            List<int> genres = item['genre_ids'];
+            Map<String, dynamic>? providersMap = item['providers'];
+            List<Text> providersList = [];
 
-          dynamic item = response['results'][itemIndex];
-          String title = item['original_title'];
-          String cover = item['poster_path'];
-          List genres = item['genre_ids'];
-*/
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                /*
-                Image.network(
-                  imageUrl,
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.cover,
+            if(genres.contains(int.parse(genre))){
+              if(providersMap != null){
+                List<String> providerCountryList = providersMap.keys.toList();
+
+                for (var country in globals.countryList) {
+                  for (var providerCountry in providerCountryList) {
+                    if(country == providerCountry){
+                      providersList.add( Text( country ));
+                    }
+                    if(providersList.length == 8){
+                      break;
+                    }
+                  }
+                  if(providersList.length == 8){
+                    break;
+                  }
+                }
+              }
+
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  elevation: 7,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 150,
+                        height: 225,
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(10),
+                            bottomLeft: Radius.circular(10),
+                            bottomRight: Radius.circular(10),
+                          ),
+                          image: DecorationImage(
+                            image: NetworkImage(coverUrl),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8, right: 8),
+                              child: Text(
+                                title,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, right: 8),
+                              child: Wrap(
+                                spacing: 6,
+                                children: providersList,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                */
-                Text('Tile $index'),
-              ],
-            ),
-          );
-          itemIndex++;
+              );
+            }
+          } else if (index < 100) {
+            fetchProviderData();
+            pageIndex += 1;
+            //return const Center(child: CircularProgressIndicator());
+          } else {
+            return const Center(child: Text('End of List'));
+          }
+          return null;
         },
       ),
     );

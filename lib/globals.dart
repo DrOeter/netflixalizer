@@ -1,6 +1,46 @@
 import 'package:flutter/material.dart';
 
-List<String> country =  [
+Map<String, String> requests = {
+  'trendingMovies': 'https://api.themoviedb.org/3/trending/movie/week?api_key=e2c7d1908816457a2156268c1fb5d7ae&page={}',
+  'trendingTV': 'https://api.themoviedb.org/3/trending/tv/week?api_key=e2c7d1908816457a2156268c1fb5d7ae&page={}',
+  'providersMovies': 'https://api.themoviedb.org/3/movie/{}/watch/providers?include_adult=true&language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae',
+  'providersTV': 'https://api.themoviedb.org/3/movie/{}/watch/providers?include_adult=true&language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae',
+  'imagesMovies': 'https://api.themoviedb.org/3/movie/{}/images?api_key=e2c7d1908816457a2156268c1fb5d7ae',
+  'imagesTV': 'https://api.themoviedb.org/3/movie/{}/images?api_key=e2c7d1908816457a2156268c1fb5d7ae',
+  'image': 'https://image.tmdb.org/t/p/w500{}',
+};
+
+List<DropdownMenuItem<String>> movieGenreItems = [
+  DropdownMenuItem(value: "0", child: Text( "None" )),
+  DropdownMenuItem(value: "28", child: Text( "Action" )),
+  DropdownMenuItem(value: "12", child: Text( "Adventure" )),
+  DropdownMenuItem(value: "16", child: Text( "Animation" )),
+  DropdownMenuItem(value: "35", child: Text( "Comedy" )),
+  DropdownMenuItem(value: "80", child: Text( "Crime" )),
+  DropdownMenuItem(value: "99", child: Text( "Documentary" )),
+  DropdownMenuItem(value: "18", child: Text( "Drama" )),
+  DropdownMenuItem(value: "10751", child: Text( "Family" )),
+  DropdownMenuItem(value: "14", child: Text( "Fantasy" )),
+  DropdownMenuItem(value: "36", child: Text( "History" )),
+  DropdownMenuItem(value: "27", child: Text( "Horror" )),
+  DropdownMenuItem(value: "10402", child: Text( "Music" )),
+  DropdownMenuItem(value: "9648", child: Text( "Mystery" )),
+  DropdownMenuItem(value: "10749", child: Text( "Romance" )),
+  DropdownMenuItem(value: "878", child: Text( "Science Fiction" )),
+  DropdownMenuItem(value: "10770", child: Text( "TV Movie" )),
+  DropdownMenuItem(value: "53", child: Text( "Thriller" )),
+  DropdownMenuItem(value: "10752", child: Text( "War" )),
+  DropdownMenuItem(value: "37", child: Text( "Western" ))
+];
+
+
+List<DropdownMenuItem<String>> contentTypeItems = [
+  DropdownMenuItem(child: Text("Movie"),value: "movie"),
+  DropdownMenuItem(child: Text("TV"),value: "tv"),
+];
+
+
+List<String> countryList =  [
   "US",
   "CN",
   "JP",
@@ -192,34 +232,4 @@ List<String> country =  [
   "KI",
   "NR",
   "TV"
-];
-
-
-List<DropdownMenuItem<String>> movieGenreItems = [
-  DropdownMenuItem(value: "0", child: Text( "None" )),
-  DropdownMenuItem(value: "28", child: Text( "Action" )),
-  DropdownMenuItem(value: "12", child: Text( "Adventure" )),
-  DropdownMenuItem(value: "16", child: Text( "Animation" )),
-  DropdownMenuItem(value: "35", child: Text( "Comedy" )),
-  DropdownMenuItem(value: "80", child: Text( "Crime" )),
-  DropdownMenuItem(value: "99", child: Text( "Documentary" )),
-  DropdownMenuItem(value: "18", child: Text( "Drama" )),
-  DropdownMenuItem(value: "10751", child: Text( "Family" )),
-  DropdownMenuItem(value: "14", child: Text( "Fantasy" )),
-  DropdownMenuItem(value: "36", child: Text( "History" )),
-  DropdownMenuItem(value: "27", child: Text( "Horror" )),
-  DropdownMenuItem(value: "10402", child: Text( "Music" )),
-  DropdownMenuItem(value: "9648", child: Text( "Mystery" )),
-  DropdownMenuItem(value: "10749", child: Text( "Romance" )),
-  DropdownMenuItem(value: "878", child: Text( "Science Fiction" )),
-  DropdownMenuItem(value: "10770", child: Text( "TV Movie" )),
-  DropdownMenuItem(value: "53", child: Text( "Thriller" )),
-  DropdownMenuItem(value: "10752", child: Text( "War" )),
-  DropdownMenuItem(value: "37", child: Text( "Western" ))
-];
-
-
-List<DropdownMenuItem<String>> contentTypeItems = [
-  DropdownMenuItem(child: Text("Movie"),value: "movie"),
-  DropdownMenuItem(child: Text("TV"),value: "tv"),
 ];
