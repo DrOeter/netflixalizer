@@ -21,7 +21,7 @@ class Netflixalizer extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: ScrollableWidget(),
+      home: const ScrollableWidget(),
     );
   }
 }
@@ -72,7 +72,7 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
                       });
                     },
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   DropdownButton(
                     value: contentType,
                     items: globals.contentTypeItems,
@@ -322,13 +322,13 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
                           ),
                         ],
                       ),
-                      Text('', style: const TextStyle(
+                      const Text('', style: TextStyle(
                         fontSize: 10,
                       )),
                       Expanded(
                         child: Wrap(
-                          children: logoList,
                           spacing: 5,
+                          children: logoList,
                         ),
                       ),
                     ]

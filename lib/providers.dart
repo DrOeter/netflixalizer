@@ -1,4 +1,4 @@
-List<Map<String, dynamic>> providerList = [
+const List<Map<String, dynamic>> providerList = [
    {
       'logo_path':'/t2yyOv40HZeVlLjYsCsPHnWLk4W.jpg',
       'provider_name':'Netflix',
