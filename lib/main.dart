@@ -79,9 +79,9 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
                     onChanged: (String? newValue) {
                       setState(() {
                         contentType = newValue!;
-                        itemIndex = 0;
-                        pageIndex = 1;
-                        trendingList.clear();
+                        //itemIndex = 0;
+                        //pageIndex = 1;
+                        //trendingList.clear();
                       });
                     },
                   ),
