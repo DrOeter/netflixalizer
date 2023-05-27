@@ -6,8 +6,8 @@ import 'package:http/http.dart' as http;
 
 import 'globals.dart' as globals;
 
-Future httpRequest() async {
-  final response = await http.get(Uri.parse('https://jsonplaceholder.typicode.com/albums/1'));
+Future httpRequest(String url) async {
+  final response = await http.get(Uri.parse( url ));
 
   if (response.statusCode == 200) {
     return jsonDecode(response.body);
@@ -18,11 +18,11 @@ Future httpRequest() async {
 }
 
 void main() {
-  runApp(const MyApp());
+  runApp(const Netflixalizer());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class Netflixalizer extends StatelessWidget {
+  const Netflixalizer({super.key});
 
   // This widget is the root of your application.
   @override
@@ -46,7 +46,10 @@ class ScrollableWidget extends StatefulWidget {
 
 class _ScrollableWidgetState extends State<ScrollableWidget> {
   String genre = '28';
-  String contentType = 'Movie';
+  String contentType = 'movie';
+  int loadCounter = 1;
+  int itemIndex = 0;
+  dynamic response;
 
   void _filterButtonHandler(BuildContext context) {
     showDialog(
@@ -118,10 +121,21 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4, // Number of tiles per row
         ),
-        itemBuilder: (BuildContext context, int index) {
-          // Replace with your own logic to retrieve the image URL
-          String imageUrl = 'https://example.com/image_$index.jpg';
+        itemBuilder: (BuildContext context, int index) {  
+/*
+          if(index % 20 == 0){
+            response = httpRequest(
+              'https://api.themoviedb.org/3/trending/movie/week?api_key=e2c7d1908816457a2156268c1fb5d7ae&page=$loadCounter'
+            );
+            loadCounter++;
+            itemIndex = 0;
+          }
 
+          dynamic item = response['results'][itemIndex];
+          String title = item['original_title'];
+          String cover = item['poster_path'];
+          List genres = item['genre_ids'];
+*/
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -138,6 +152,7 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
               ],
             ),
           );
+          itemIndex++;
         },
       ),
     );

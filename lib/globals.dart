@@ -196,6 +196,7 @@ List<String> country =  [
 
 
 List<DropdownMenuItem<String>> movieGenreItems = [
+  DropdownMenuItem(value: "0", child: Text( "None" )),
   DropdownMenuItem(value: "28", child: Text( "Action" )),
   DropdownMenuItem(value: "12", child: Text( "Adventure" )),
   DropdownMenuItem(value: "16", child: Text( "Animation" )),
@@ -219,6 +220,6 @@ List<DropdownMenuItem<String>> movieGenreItems = [
 
 
 List<DropdownMenuItem<String>> contentTypeItems = [
-  DropdownMenuItem(child: Text("Movie"),value: "Movie"),
-  DropdownMenuItem(child: Text("TV"),value: "TV"),
+  DropdownMenuItem(child: Text("Movie"),value: "movie"),
+  DropdownMenuItem(child: Text("TV"),value: "tv"),
 ];
