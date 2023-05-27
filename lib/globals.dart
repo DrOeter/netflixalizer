@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Map<String, String> requests = {
+const Map<String, String> requests = {
   'trendingMovies': 'https://api.themoviedb.org/3/trending/movie/week?api_key=e2c7d1908816457a2156268c1fb5d7ae&page={}',
   'trendingTV': 'https://api.themoviedb.org/3/trending/tv/week?api_key=e2c7d1908816457a2156268c1fb5d7ae&page={}',
   'providersMovies': 'https://api.themoviedb.org/3/movie/{}/watch/providers?include_adult=true&language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae',
@@ -10,7 +10,7 @@ Map<String, String> requests = {
   'image': 'https://image.tmdb.org/t/p/w500{}',
 };
 
-List<DropdownMenuItem<String>> movieGenreItems = [
+const List<DropdownMenuItem<String>> movieGenreItems = [
   DropdownMenuItem(value: "0", child: Text( "None" )),
   DropdownMenuItem(value: "28", child: Text( "Action" )),
   DropdownMenuItem(value: "12", child: Text( "Adventure" )),
@@ -34,13 +34,13 @@ List<DropdownMenuItem<String>> movieGenreItems = [
 ];
 
 
-List<DropdownMenuItem<String>> contentTypeItems = [
-  DropdownMenuItem(child: Text("Movie"),value: "movie"),
-  DropdownMenuItem(child: Text("TV"),value: "tv"),
+const List<DropdownMenuItem<String>> contentTypeItems = [
+  DropdownMenuItem(value: "movie", child: Text("Movie")),
+  DropdownMenuItem(value: "tv", child: Text("TV")),
 ];
 
 
-List<String> countryList =  [
+const List<String> countryList =  [
   "US",
   "CN",
   "JP",

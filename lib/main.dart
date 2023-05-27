@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -192,7 +191,7 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
             Map<String, dynamic>? providersMap = item['providers'];
             List<Text> providersList = [];
 
-            if(genres.contains(int.parse(genre))){
+            if(genres.contains(int.parse(genre)) || genre == '0'){
               if(providersMap != null){
                 List<String> providerCountryList = providersMap.keys.toList();
 
