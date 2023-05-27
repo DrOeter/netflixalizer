@@ -1,22 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
 import 'globals.dart' as globals;
-
-Future httpRequest(String url) async {
-  final response = await http.get(Uri.parse( url ));
-
-  if (response.statusCode == 200) {
-    return jsonDecode(response.body);
-  } 
-  else {
-    throw Exception('Request Failed ${response.statusCode}');
-  }
-}
 
 void main() {
   runApp(const Netflixalizer());
@@ -200,9 +186,6 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
             List<dynamic> genres = item['genre_ids'];
             Map<String, dynamic>? providersMap = item['providers'];
             List<Text> providersList = [];
-
-            //print(genre);
-            //print(genres);
 
             if(genres.contains(int.parse(genre)) || genre == '0'){
               if(providersMap != null){
