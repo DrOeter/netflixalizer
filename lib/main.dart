@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 import 'package:http/http.dart' as http;
 import 'globals.dart' as globals;
 import 'providers.dart' as providers;
@@ -17,7 +16,7 @@ class Netflixalizer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Netflixalizer',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -50,12 +49,12 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
 
   void removeByGenre(){
     List<Map<String, dynamic>> removeList = [];
-                        
-    trendingList.forEachIndexed((index, trend) {
+
+    for (var trend in trendingList) {
       if(!trend['genre_ids'].contains(int.parse(genre)) && genre != '0'){
         removeList.add(trend);
       }
-    });
+    }
 
     for (var trend in removeList) {
       trendingList.remove(trend);
