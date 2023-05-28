@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
 const Map<String, String> requests = {
-  'trendingMovies': 'https://api.themoviedb.org/3/trending/movie/week?api_key=e2c7d1908816457a2156268c1fb5d7ae&page={}',
-  'trendingTV': 'https://api.themoviedb.org/3/trending/tv/week?api_key=e2c7d1908816457a2156268c1fb5d7ae&page={}',
-  'providersMovies': 'https://api.themoviedb.org/3/movie/{}/watch/providers?include_adult=true&language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae',
-  'providersTV': 'https://api.themoviedb.org/3/tv/{}/watch/providers?include_adult=true&language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae',
-  'image': 'https://image.tmdb.org/t/p/w500{}',
+  'trending': 'https://api.themoviedb.org/3/trending/%s/%s?api_key=e2c7d1908816457a2156268c1fb5d7ae&page=%s',
+  'providers': 'https://api.themoviedb.org/3/%s/%s/watch/providers?include_adult=true&language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae',
+  'image': 'https://image.tmdb.org/t/p/w500%s',
 };
 
 const List<DropdownMenuItem<String>> movieGenreItems = [

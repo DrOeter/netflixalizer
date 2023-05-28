@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:sprintf/sprintf.dart';
 import 'package:http/http.dart' as http;
 import 'globals.dart' as globals;
 import 'providers.dart' as providers;
@@ -35,6 +36,7 @@ class ScrollableWidget extends StatefulWidget {
 class ScrollableWidgetState extends State<ScrollableWidget> {
   String genre = '0';
   String contentType = 'movie';
+  String timePeriod = 'week';
   int loadCounter = 1;
   int itemCounter = 1;
   int lastIndex = 0;
@@ -77,7 +79,14 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                     onChanged: (String? newValue) {
                       setState(() {
                         genre = newValue!;
-                        removeByGenre();
+                        if(genre != '0') {
+                          removeByGenre();
+                        }
+                        else if(genre == '0') {
+                          pageIndex = 1;
+                          lastIndex -= trendingList.length;
+                          trendingList.clear();
+                        }
                       });
                     },
                   ),
@@ -123,12 +132,16 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   Future<void> fetchProviderData() async {
     block = true;
     await fetchData(
-      buildUrl('trendingMovies', pageIndex.toString()),
+      //buildUrl('trendingMovies', pageIndex.toString()),
+      sprintf(globals.requests['trendingMovies']!, [contentType, timePeriod, pageIndex.toString()]),
       'results',
       trendingList,
       null
     );
     removeByGenre();
+
+        print(sprintf("%s %s", ["Hello", "World!"]));
+
 
     for (var i = lastIndex; i < trendingList.length; i++) {
       Map<String, dynamic> providersMap = {};
