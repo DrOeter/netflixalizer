@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 const Map<String, String> requests = {
-  'trending': 'https://api.themoviedb.org/3/trending/%s/%s?api_key=e2c7d1908816457a2156268c1fb5d7ae&page=%s',
+  'trending': 'https://api.themoviedb.org/3/trending/%s/%s?language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae&page=%s',
   'providers': 'https://api.themoviedb.org/3/%s/%s/watch/providers?include_adult=true&language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae',
   'image': 'https://image.tmdb.org/t/p/w500%s',
 };
@@ -29,9 +29,34 @@ const List<DropdownMenuItem<String>> movieGenreItems = [
   DropdownMenuItem(value: '37', child: Text( 'Western' ))
 ];
 
+const List<DropdownMenuItem<String>> tvGenreItems = [
+  DropdownMenuItem(value: '0', child: Text( 'None' )),
+  DropdownMenuItem(value: '10759', child: Text( 'Action & Adventure' )),
+  DropdownMenuItem(value: '16', child: Text( 'Animation' )),
+  DropdownMenuItem(value: '35', child: Text( 'Comedy' )),
+  DropdownMenuItem(value: '80', child: Text( 'Crime' )),
+  DropdownMenuItem(value: '99', child: Text( 'Documentary' )),
+  DropdownMenuItem(value: '18', child: Text( 'Drama' )),
+  DropdownMenuItem(value: '10751', child: Text( 'Family' )),
+  DropdownMenuItem(value: '10762', child: Text( 'Kids' )),
+  DropdownMenuItem(value: '9648', child: Text( 'Mystery' )),
+  DropdownMenuItem(value: '10763', child: Text( 'News' )),
+  DropdownMenuItem(value: '10764', child: Text( 'Reality' )),
+  DropdownMenuItem(value: '10765', child: Text( 'Sci-Fi & Fantasy' )),
+  DropdownMenuItem(value: '10766', child: Text( 'Soap' )),
+  DropdownMenuItem(value: '10767', child: Text( 'Talk' )),
+  DropdownMenuItem(value: '10768', child: Text( 'War & Politics' )),
+  DropdownMenuItem(value: '37', child: Text( 'Western' )),
+];
+
 const List<DropdownMenuItem<String>> contentTypeItems = [
   DropdownMenuItem(value: 'movie', child: Text('Movie')),
   DropdownMenuItem(value: 'tv', child: Text('TV')),
+];
+
+const List<DropdownMenuItem<String>> timePeriodItems = [
+  DropdownMenuItem(value: 'day', child: Text('Day')),
+  DropdownMenuItem(value: 'week', child: Text('Week')),
 ];
 
 const List<String> countryList =  [

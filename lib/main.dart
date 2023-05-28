@@ -35,7 +35,10 @@ class ScrollableWidget extends StatefulWidget {
 
 class ScrollableWidgetState extends State<ScrollableWidget> {
   String genre = '0';
+  String genreMovie = '0';
+  String genreTv = '0';
   String contentType = 'movie';
+  String titleKeyName = 'original_title';
   String timePeriod = 'week';
   int loadCounter = 1;
   int itemCounter = 1;
@@ -43,10 +46,6 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   int pageIndex = 1;
   bool block = false;
   List<dynamic> trendingList = [];
-
-  String buildUrl(String key, String value){
-    return globals.requests[key]!.replaceFirst('{}', value);
-  }
 
   void removeByGenre(){
     List<Map<String, dynamic>> removeList = [];
@@ -63,6 +62,12 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
     }
   }
 
+  resetView(){
+    pageIndex = 1;
+    lastIndex = 0;
+    trendingList.clear();
+  }
+
   void filterButtonHandler(BuildContext context) {
     showDialog(
       context: context,
@@ -73,12 +78,21 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const Text(
+                    'Movie Genre',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   DropdownButton(
-                    value: genre,
+                    value: genreMovie,
                     items: globals.movieGenreItems,
                     onChanged: (String? newValue) {
                       setState(() {
                         genre = newValue!;
+                        genreMovie = genre;
+
                         if(genre != '0') {
                           removeByGenre();
                         }
@@ -91,12 +105,72 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                     },
                   ),
                   const SizedBox(height: 20),
+                  const Text(
+                    'TV Genre',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  DropdownButton(
+                    value: genreTv,
+                    items: globals.tvGenreItems,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        genre = newValue!;
+                        genreTv = genre;
+
+                        if(genre != '0') {
+                          removeByGenre();
+                        }
+                        else if(genre == '0') {
+                          pageIndex = 1;
+                          lastIndex -= trendingList.length;
+                          trendingList.clear();
+                        }
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Content Type',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   DropdownButton(
                     value: contentType,
                     items: globals.contentTypeItems,
                     onChanged: (String? newValue) {
                       setState(() {
                         contentType = newValue!;
+                        resetView();
+
+                        if(contentType == 'movie'){
+                          titleKeyName = 'original_title';
+                        }
+                        else if(contentType == 'tv') {
+                          titleKeyName = 'original_name';
+                        }
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Time Period',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  DropdownButton(
+                    value: timePeriod,
+                    items: globals.timePeriodItems,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        timePeriod = newValue!;
+                        resetView();
                       });
                     },
                   ),
@@ -132,28 +206,26 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   Future<void> fetchProviderData() async {
     block = true;
     await fetchData(
-      //buildUrl('trendingMovies', pageIndex.toString()),
-      sprintf(globals.requests['trendingMovies']!, [contentType, timePeriod, pageIndex.toString()]),
+      sprintf(globals.requests['trending']!, [contentType, timePeriod, pageIndex.toString()]),
       'results',
       trendingList,
       null
     );
     removeByGenre();
 
-        print(sprintf("%s %s", ["Hello", "World!"]));
-
-
     for (var i = lastIndex; i < trendingList.length; i++) {
       Map<String, dynamic> providersMap = {};
       await fetchData(
-        buildUrl('providersMovies', trendingList[i]['id'].toString()),
+        sprintf(globals.requests['providers']!, [contentType, trendingList[i]['id'].toString()]),
         'results',
         null,
         providersMap
       );
 
-      trendingList[i]['providers'] = <String, dynamic>{};
-      trendingList[i]['providers'].addAll( providersMap['results'] );
+      if(providersMap['results'] != null){
+        trendingList[i]['providers'] = <String, dynamic>{};
+        trendingList[i]['providers'].addAll( providersMap['results'] );
+      }
       lastIndex = i + 1;
     }
     block = false;
@@ -202,8 +274,8 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
         itemBuilder: (BuildContext context, int index) {
           if (index < trendingList.length) {
             Map<String, dynamic> item           = trendingList[index];
-            String title                        = item['original_title'];
-            String coverUrl                     = buildUrl('image', item['poster_path'].toString());
+            String title                        = item[titleKeyName];
+            String coverUrl                     = sprintf(globals.requests['image']!, [item['poster_path'].toString()]);
             Map<String, dynamic>? providersMap  = item['providers'];
             List<Text> providersCountryList     = [];
             List<String> providersList          = [];
@@ -227,7 +299,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                   if(providersMap[country]['flatrate'] != null) {
                     for (var providerFlatrate in providersMap[country]['flatrate']) {
                       if(providerFlatrate['provider_id'] == provider['provider_id']){
-                        var url = buildUrl('image', provider['logo_path']);
+                        var url = sprintf(globals.requests['image']!, [provider['logo_path'].toString()]);
 
                         if(!providersList.contains(url)){
                           providersList.add(url);
@@ -239,7 +311,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                   if(providersMap[country]['rent'] != null) {
                     for (var providerFlatrate in providersMap[country]['rent']) {
                       if(providerFlatrate['provider_id'] == provider['provider_id']){
-                        var url = buildUrl('image', provider['logo_path']);
+                        var url = sprintf(globals.requests['image']!, [provider['logo_path'].toString()]);
 
                         if(!providersList.contains(url)){
                           providersList.add(url);
@@ -251,7 +323,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                   if(providersMap[country]['buy'] != null) {
                     for (var providerFlatrate in providersMap[country]['buy']) {
                       if(providerFlatrate['provider_id'] == provider['provider_id']){
-                        var url = buildUrl('image', provider['logo_path']);
+                        var url = sprintf(globals.requests['image']!, [provider['logo_path'].toString()]);
 
                         if(!providersList.contains(url)){
                           providersList.add(url);
