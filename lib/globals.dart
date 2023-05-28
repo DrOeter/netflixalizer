@@ -4,9 +4,7 @@ const Map<String, String> requests = {
   'trendingMovies': 'https://api.themoviedb.org/3/trending/movie/week?api_key=e2c7d1908816457a2156268c1fb5d7ae&page={}',
   'trendingTV': 'https://api.themoviedb.org/3/trending/tv/week?api_key=e2c7d1908816457a2156268c1fb5d7ae&page={}',
   'providersMovies': 'https://api.themoviedb.org/3/movie/{}/watch/providers?include_adult=true&language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae',
-  'providersTV': 'https://api.themoviedb.org/3/movie/{}/watch/providers?include_adult=true&language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae',
-  'imagesMovies': 'https://api.themoviedb.org/3/movie/{}/images?api_key=e2c7d1908816457a2156268c1fb5d7ae',
-  'imagesTV': 'https://api.themoviedb.org/3/movie/{}/images?api_key=e2c7d1908816457a2156268c1fb5d7ae',
+  'providersTV': 'https://api.themoviedb.org/3/tv/{}/watch/providers?include_adult=true&language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae',
   'image': 'https://image.tmdb.org/t/p/w500{}',
 };
 
