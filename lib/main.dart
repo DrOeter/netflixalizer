@@ -193,7 +193,6 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
             Map<String, dynamic> item           = trendingList[index];
             String title                        = item['original_title'];
             String coverUrl                     = buildUrl('image', item['poster_path'].toString());
-            List<dynamic> genres                = item['genre_ids'];
             Map<String, dynamic>? providersMap  = item['providers'];
             List<Text> providersCountryList     = [];
             List<String> providersList          = [];
