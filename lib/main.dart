@@ -12,7 +12,6 @@ void main() {
 class Netflixalizer extends StatelessWidget {
   const Netflixalizer({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,10 +29,10 @@ class ScrollableWidget extends StatefulWidget {
   const ScrollableWidget({Key? key}) : super(key: key);
 
   @override
-  _ScrollableWidgetState createState() => _ScrollableWidgetState();
+  ScrollableWidgetState createState() => ScrollableWidgetState();
 }
 
-class _ScrollableWidgetState extends State<ScrollableWidget> {
+class ScrollableWidgetState extends State<ScrollableWidget> {
   String genre = '0';
   String contentType = 'movie';
   int loadCounter = 1;
@@ -62,7 +61,7 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
     }
   }
 
-  void _filterButtonHandler(BuildContext context) {
+  void filterButtonHandler(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -170,7 +169,7 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
                   const Text('Netflixalizer'),
                   TextButton(
                     onPressed: () {
-                      _filterButtonHandler(context);
+                      filterButtonHandler(context);
                     },
                     child: const Text('Filter'),
                   ),
@@ -183,7 +182,7 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
         ),
       ),
       body: GridView.builder(
-        itemCount: trendingList.length + 1, // +1 for loading indicator at the end
+        itemCount: trendingList.length + 1,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4,
         ),
@@ -344,7 +343,6 @@ class _ScrollableWidgetState extends State<ScrollableWidget> {
           } else if (index < 100 && block == false) {
             fetchProviderData();
             pageIndex += 1;
-            //return const Center(child: CircularProgressIndicator());
           } else {
             return const Center(child: Text('End of List'));
           }
@@ -372,7 +370,6 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
   }
 
   void _onSearchTextChanged(String text) {
-    // Implement your search logic here
     print(text);
   }
 
