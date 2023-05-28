@@ -205,6 +205,8 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
 
   Future<void> fetchProviderData() async {
     block = true;
+    List<Map<String, dynamic>> removeList = [];
+
     await fetchData(
       sprintf(globals.requests['trending']!, [contentType, timePeriod, pageIndex.toString()]),
       'results',
@@ -222,12 +224,21 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
         providersMap
       );
 
-      if(providersMap['results'] != null){
+      if(!providersMap['results'].isEmpty){
         trendingList[i]['providers'] = <String, dynamic>{};
         trendingList[i]['providers'].addAll( providersMap['results'] );
       }
+      else {
+        removeList.add(trendingList[i]);
+      }
       lastIndex = i + 1;
     }
+
+    for (var trend in removeList) {
+      trendingList.remove(trend);
+      if(lastIndex > 0) lastIndex -= 1;
+    }
+
     block = false;
   }
 
