@@ -71,8 +71,10 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   }
 
   void onTextChanged(String text) {
-    searchQuery = text;
-    resetView();
+    if(!block){
+      searchQuery = text;
+      resetView();
+    }
   }
 
   void fillProviderList(
