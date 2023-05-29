@@ -34,24 +34,26 @@ class ScrollableWidget extends StatefulWidget {
 }
 
 class ScrollableWidgetState extends State<ScrollableWidget> {
-  String genre = '0';
-  String genreMovie = '0';
-  String genreTv = '0';
-  String contentType = 'movie';
+  int genre           = 0;
+  int genreMovie      = 0;
+  int genreTv         = 0;
+  String contentType  = 'movie';
   String titleKeyName = 'original_title';
-  String timePeriod = 'week';
-  int lastIndex = 0;
-  int pageIndex = 1;
-  int providerLen = 6;
-  int countryLen = 16;
-  bool block = false;
+  String timePeriod   = 'week';
+  String searchQuery  = '';
+  int lastIndex       = 0;
+  int pageIndex       = 1;
+  int providerLen     = 6;
+  int countryLen      = 16;
+  bool block          = false;
   List<dynamic> trendingList = [];
+  final TextEditingController _searchController = TextEditingController();
 
   void removeByGenre(){
     List<Map<String, dynamic>> removeList = [];
 
     for (var trend in trendingList) {
-      if(!trend['genre_ids'].contains(int.parse(genre)) && genre != '0'){
+      if(!trend['genre_ids'].contains(genre) && genre != 0){
         removeList.add(trend);
       }
     }
@@ -66,6 +68,11 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
     pageIndex = 1;
     lastIndex = 0;
     trendingList.clear();
+  }
+
+  void onTextChanged(String text) {
+    searchQuery = text;
+    resetView();
   }
 
   void fillProviderList(
@@ -87,121 +94,6 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
         if(providersList.length == providerLen) break;
       }
     }
-  }
-
-  void filterButtonHandler(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Dialog(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Movie Genre',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  DropdownButton(
-                    value: genreMovie,
-                    items: globals.movieGenreItems,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        genre = newValue!;
-                        genreMovie = genre;
-
-                        if(genre != '0') {
-                          removeByGenre();
-                        }
-                        else if(genre == '0') {
-                          pageIndex = 1;
-                          lastIndex -= trendingList.length;
-                          trendingList.clear();
-                        }
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'TV Genre',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  DropdownButton(
-                    value: genreTv,
-                    items: globals.tvGenreItems,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        genre = newValue!;
-                        genreTv = genre;
-
-                        if(genre != '0') {
-                          removeByGenre();
-                        }
-                        else if(genre == '0') {
-                          pageIndex = 1;
-                          lastIndex -= trendingList.length;
-                          trendingList.clear();
-                        }
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Content Type',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  DropdownButton(
-                    value: contentType,
-                    items: globals.contentTypeItems,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        contentType = newValue!;
-                        resetView();
-
-                        if(contentType == 'movie'){
-                          titleKeyName = 'original_title';
-                        }
-                        else if(contentType == 'tv') {
-                          titleKeyName = 'original_name';
-                        }
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Time Period',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  DropdownButton(
-                    value: timePeriod,
-                    items: globals.timePeriodItems,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        timePeriod = newValue!;
-                        resetView();
-                      });
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
   }
 
   Future<void> fetchData(String url, String key, List<dynamic>? dataList, Map<String, dynamic>? dataMap) async {
@@ -226,10 +118,18 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
 
   Future<void> fetchProviderData() async {
     block = true;
+    String url;
     List<Map<String, dynamic>> removeList = [];
 
+    if(searchQuery.isNotEmpty){
+      url = sprintf(globals.requests['search']!, [contentType, searchQuery, pageIndex.toString()]);
+    }
+    else {
+      url = sprintf(globals.requests['trending']!, [contentType, timePeriod, pageIndex.toString()]);
+    }
+
     await fetchData(
-      sprintf(globals.requests['trending']!, [contentType, timePeriod, pageIndex.toString()]),
+      url,
       'results',
       trendingList,
       null
@@ -271,6 +171,138 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void filterButtonHandler(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Movie Genre',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  DropdownButton(
+                    value: genreMovie,
+                    items: globals.movieGenreItems,
+                    onChanged: (int? newValue) {
+                      if(!block){
+                        setState(() {
+                          genre = newValue!;
+                          genreMovie = genre;
+
+                          if(genre != 0) {
+                            removeByGenre();
+                          }
+                          else if(genre == 0) {
+                            pageIndex = 1;
+                            lastIndex -= trendingList.length;
+                            trendingList.clear();
+                          }
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'TV Genre',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  DropdownButton(
+                    value: genreTv,
+                    items: globals.tvGenreItems,
+                    onChanged: (int? newValue) {
+                      if(!block){
+                        setState(() {
+                          genre = newValue!;
+                          genreTv = genre;
+
+                          if(genre != 0) {
+                            removeByGenre();
+                          }
+                          else if(genre == 0) {
+                            pageIndex = 1;
+                            lastIndex -= trendingList.length;
+                            trendingList.clear();
+                          }
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Content Type',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  DropdownButton(
+                    value: contentType,
+                    items: globals.contentTypeItems,
+                    onChanged: (String? newValue) {
+                      if(!block){
+                        setState(() {
+                          contentType = newValue!;
+                          genre       = 0; 
+                          genreMovie  = 0; 
+                          genreTv     = 0; 
+
+                          if(contentType == 'movie'){
+                            titleKeyName = 'original_title';
+                          }
+                          else if(contentType == 'tv') {
+                            titleKeyName = 'original_name';
+                          }
+                          resetView();
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Time Period',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  DropdownButton(
+                    value: timePeriod,
+                    items: globals.timePeriodItems,
+                    onChanged: (String? newValue) {
+                      if(!block){
+                        setState(() {
+                          timePeriod = newValue!;
+                          resetView();
+                        });
+                      }
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -293,7 +325,20 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                 ],
               ),
             ),
-            const SearchBarWidget(),
+            SizedBox(
+              width: 400, 
+              child: TextField(
+                controller: _searchController,
+                onChanged: onTextChanged,
+                decoration: InputDecoration(
+                  hintText: 'Search',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+              ),
+            ),
             Expanded(child: Container()),
           ],
         ),
@@ -432,45 +477,6 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
           }
           return null;
         },
-      ),
-    );
-  }
-}
-
-class SearchBarWidget extends StatefulWidget {
-  const SearchBarWidget({super.key}); 
-
-  @override
-  _SearchBarWidgetState createState() => _SearchBarWidgetState();
-}
-
-class _SearchBarWidgetState extends State<SearchBarWidget> {
-  final TextEditingController _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  void _onSearchTextChanged(String text) {
-    print(text);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 400, 
-      child: TextField(
-        controller: _searchController,
-        onChanged: _onSearchTextChanged,
-        decoration: InputDecoration(
-          hintText: 'Search',
-          prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-        ),
       ),
     );
   }
