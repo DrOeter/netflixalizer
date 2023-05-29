@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 const Map<String, String> requests = {
   'trending': 'https://api.themoviedb.org/3/trending/%s/%s?language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae&page=%s',
   'providers': 'https://api.themoviedb.org/3/%s/%s/watch/providers?include_adult=true&language=en-US&api_key=e2c7d1908816457a2156268c1fb5d7ae',
+  'discover': 'https://api.themoviedb.org/3/discover/movie?include_adult=true&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=1%2C2&with_keywords=yee%7Ckak',
   'image': 'https://image.tmdb.org/t/p/w500%s',
 };
 

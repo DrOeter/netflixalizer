@@ -40,10 +40,10 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   String contentType = 'movie';
   String titleKeyName = 'original_title';
   String timePeriod = 'week';
-  int loadCounter = 1;
-  int itemCounter = 1;
   int lastIndex = 0;
   int pageIndex = 1;
+  int providerLen = 6;
+  int countryLen = 16;
   bool block = false;
   List<dynamic> trendingList = [];
 
@@ -62,10 +62,31 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
     }
   }
 
-  resetView(){
+  void resetView(){
     pageIndex = 1;
     lastIndex = 0;
     trendingList.clear();
+  }
+
+  void fillProviderList(
+    List<dynamic> providersList, 
+    Map<String, dynamic> providersMap, 
+    Map<String, dynamic> provider, 
+    String country, 
+    String section
+  ){
+    if(providersMap[country][section] != null) {
+      for (var existingProvider in providersMap[country][section]) {
+        if(existingProvider['provider_id'] == provider['provider_id']){
+          var url = sprintf(globals.requests['image']!, [provider['logo_path'].toString()]);
+
+          if(!providersList.contains(url)){
+            providersList.add(url);
+          }
+        }
+        if(providersList.length == providerLen) break;
+      }
+    }
   }
 
   void filterButtonHandler(BuildContext context) {
@@ -300,50 +321,17 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                   if(country == providerCountry){
                     providersCountryList.add( Text( country ));
                   }
-                  if(providersCountryList.length == 16) break;
+                  if(providersCountryList.length == countryLen) break;
                 }
-                if(providersCountryList.length == 16) break;
+                if(providersCountryList.length == countryLen) break;
               }
 
               for (var provider in providers.providerList) {
                 for (var country in countryList) {
-                  if(providersMap[country]['flatrate'] != null) {
-                    for (var providerFlatrate in providersMap[country]['flatrate']) {
-                      if(providerFlatrate['provider_id'] == provider['provider_id']){
-                        var url = sprintf(globals.requests['image']!, [provider['logo_path'].toString()]);
-
-                        if(!providersList.contains(url)){
-                          providersList.add(url);
-                        }
-                      }
-                      if(providersList.length == 6) break;
-                    }
-                  }
-                  if(providersMap[country]['rent'] != null) {
-                    for (var providerFlatrate in providersMap[country]['rent']) {
-                      if(providerFlatrate['provider_id'] == provider['provider_id']){
-                        var url = sprintf(globals.requests['image']!, [provider['logo_path'].toString()]);
-
-                        if(!providersList.contains(url)){
-                          providersList.add(url);
-                        }
-                      }
-                      if(providersList.length == 6) break;
-                    }
-                  }
-                  if(providersMap[country]['buy'] != null) {
-                    for (var providerFlatrate in providersMap[country]['buy']) {
-                      if(providerFlatrate['provider_id'] == provider['provider_id']){
-                        var url = sprintf(globals.requests['image']!, [provider['logo_path'].toString()]);
-
-                        if(!providersList.contains(url)){
-                          providersList.add(url);
-                        }
-                      }
-                      if(providersList.length == 6) break;
-                    }
-                  }
-                  if(providersList.length == 6) break;
+                  fillProviderList(providersList, providersMap, provider, country, 'flatrate');
+                  fillProviderList(providersList, providersMap, provider, country, 'rent');
+                  fillProviderList(providersList, providersMap, provider, country, 'buy');
+                  if(providersList.length == providerLen) break;
                 }
               }
 
