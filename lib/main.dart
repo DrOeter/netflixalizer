@@ -43,7 +43,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   String searchQuery  = '';
   int lastIndex       = 0;
   int pageIndex       = 1;
-  int providerLen     = 6;
+  int providerLen     = 5;
   int countryLen      = 16;
   bool block          = false;
   bool totalBlock     = false;
@@ -83,15 +83,12 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   }
 
   void fillProviderList(
-    List<dynamic> providersList, 
-    Map<String, dynamic> providersMap, 
-    Map<String, dynamic> provider, 
-    String country, 
-    String section
+    List<dynamic> totalList, 
+    List<dynamic> providersList
   ){
-    if(providersMap[country][section] != null) {
-      for (var existingProvider in providersMap[country][section]) {
-        if(existingProvider['provider_id'] == provider['provider_id'] && provider['logo_path'] != null){
+    for (var provider in providers.providerList) {
+      for (var existingProvider in totalList) {
+        if(existingProvider['provider_id'] == provider['provider_id']){
           var url = sprintf(globals.requests['image']!, [provider['logo_path'].toString()]);
 
           if(!providersList.contains(url)){
@@ -100,6 +97,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
         }
         if(providersList.length == providerLen) break;
       }
+      if(providersList.length == providerLen) break;
     }
   }
 
@@ -181,7 +179,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
     fetchProviderData();
     pageIndex += 1;   
   }
-
+  
   @override
   void dispose() {
     _searchController.dispose();
@@ -319,7 +317,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 70,
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.background,
         title: Flex(
           direction: Axis.horizontal,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -375,6 +373,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
             List<Text> providersCountryList     = [];
             List<String> providersList          = [];
             List<Container> logoList            = [];
+            List<dynamic> totalList             = [];
 
             if (item['poster_path'] != null){
               if(providersMap != null){
@@ -390,15 +389,15 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                   if(providersCountryList.length == countryLen) break;
                 }
 
-                for (var provider in providers.providerList) {
-                  for (var country in countryList) {
-                    fillProviderList(providersList, providersMap, provider, country, 'flatrate');
-                    fillProviderList(providersList, providersMap, provider, country, 'rent');
-                    fillProviderList(providersList, providersMap, provider, country, 'buy');
-                    if(providersList.length == providerLen) break;
-                  }
-                }
+                providersMap.forEach((key, value) {
+                  if(providersMap[key].keys.contains('buy')) totalList.addAll(providersMap[key]['buy']);
+                  if(providersMap[key].keys.contains('rent')) totalList.addAll(providersMap[key]['rent']);
+                  if(providersMap[key].keys.contains('flatrate')) totalList.addAll(providersMap[key]['flatrate']);
+                  if(providersMap[key].keys.contains('free')) totalList.addAll(providersMap[key]['free']);
+                });
 
+                fillProviderList(totalList, providersList);
+                    
                 for (var provider in providersList) {
                   logoList.add(
                     Container(
@@ -492,9 +491,8 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
           } else if (index < 100 && totalBlock == false) {
             fetchProviderData();
             pageIndex += 1;
-          } else {
-            return const Text('');
-          }
+          } 
+
           return null;
         },
       ),
