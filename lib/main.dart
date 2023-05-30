@@ -46,6 +46,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   int providerLen     = 6;
   int countryLen      = 16;
   bool block          = false;
+  bool totalBlock     = false;
   List<dynamic> trendingList = [];
   final TextEditingController _searchController = TextEditingController();
 
@@ -57,11 +58,13 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
         removeList.add(trend);
       }
     }
+    block = true;
 
     for (var trend in removeList) {
       trendingList.remove(trend);
       if(lastIndex > 0) lastIndex -= 1;
     }
+    block = false;
   }
 
   void resetView(){
@@ -71,10 +74,13 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   }
 
   void onTextChanged(String text) {
-    if(!block){
+    setState(() {
+      print('reset');
       searchQuery = text;
-      resetView();
-    }
+      if(!totalBlock){
+        resetView();
+      }
+    });
   }
 
   void fillProviderList(
@@ -86,7 +92,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   ){
     if(providersMap[country][section] != null) {
       for (var existingProvider in providersMap[country][section]) {
-        if(existingProvider['provider_id'] == provider['provider_id']){
+        if(existingProvider['provider_id'] == provider['provider_id'] && provider['logo_path'] != null){
           var url = sprintf(globals.requests['image']!, [provider['logo_path'].toString()]);
 
           if(!providersList.contains(url)){
@@ -119,9 +125,12 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
   }
 
   Future<void> fetchProviderData() async {
-    block = true;
+    totalBlock = true;
     String url;
     List<Map<String, dynamic>> removeList = [];
+    List<dynamic> responseList = [];
+
+    print(searchQuery);
 
     if(searchQuery.isNotEmpty){
       url = sprintf(globals.requests['search']!, [contentType, searchQuery, pageIndex.toString()]);
@@ -129,13 +138,16 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
     else {
       url = sprintf(globals.requests['trending']!, [contentType, timePeriod, pageIndex.toString()]);
     }
-
+    
     await fetchData(
       url,
       'results',
-      trendingList,
+      responseList,
       null
     );
+    block = true;
+    trendingList.addAll(responseList);
+    block = false;
     removeByGenre();
 
     for (var i = lastIndex; i < trendingList.length; i++) {
@@ -156,13 +168,14 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
       }
       lastIndex = i + 1;
     }
+    block = true;
 
     for (var trend in removeList) {
       trendingList.remove(trend);
       if(lastIndex > 0) lastIndex -= 1;
     }
-
     block = false;
+    totalBlock = false;
   }
 
   @override
@@ -199,7 +212,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                     value: genreMovie,
                     items: globals.movieGenreItems,
                     onChanged: (int? newValue) {
-                      if(!block){
+                      if(!totalBlock){
                         setState(() {
                           genre = newValue!;
                           genreMovie = genre;
@@ -228,7 +241,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                     value: genreTv,
                     items: globals.tvGenreItems,
                     onChanged: (int? newValue) {
-                      if(!block){
+                      if(!totalBlock){
                         setState(() {
                           genre = newValue!;
                           genreTv = genre;
@@ -257,7 +270,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                     value: contentType,
                     items: globals.contentTypeItems,
                     onChanged: (String? newValue) {
-                      if(!block){
+                      if(!totalBlock){
                         setState(() {
                           contentType = newValue!;
                           genre       = 0; 
@@ -287,7 +300,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                     value: timePeriod,
                     items: globals.timePeriodItems,
                     onChanged: (String? newValue) {
-                      if(!block){
+                      if(!totalBlock){
                         setState(() {
                           timePeriod = newValue!;
                           resetView();
@@ -317,7 +330,13 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
             Expanded(
               child: Row(
                 children: [
-                  const Text('Netflixalizer'),
+                  const Text(
+                    'Netflixalizer',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   TextButton(
                     onPressed: () {
                       filterButtonHandler(context);
@@ -351,7 +370,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
           crossAxisCount: 4,
         ),
         itemBuilder: (BuildContext context, int index) {
-          if (index < trendingList.length) {
+          if (index < trendingList.length && !block) {
             Map<String, dynamic> item           = trendingList[index];
             String title                        = item[titleKeyName];
             String coverUrl                     = sprintf(globals.requests['image']!, [item['poster_path'].toString()]);
@@ -360,122 +379,124 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
             List<String> providersList          = [];
             List<Container> logoList            = [];
 
-            if(providersMap != null){
-              List<String> countryList = providersMap.keys.toList();
+            if (item['poster_path'] != null){
+              if(providersMap != null){
+                List<String> countryList = providersMap.keys.toList();
 
-              for (var country in globals.countryList) {
-                for (var providerCountry in countryList) {
-                  if(country == providerCountry){
-                    providersCountryList.add( Text( country ));
+                for (var country in globals.countryList) {
+                  for (var providerCountry in countryList) {
+                    if(country == providerCountry){
+                      providersCountryList.add( Text( country ));
+                    }
+                    if(providersCountryList.length == countryLen) break;
                   }
                   if(providersCountryList.length == countryLen) break;
                 }
-                if(providersCountryList.length == countryLen) break;
-              }
 
-              for (var provider in providers.providerList) {
-                for (var country in countryList) {
-                  fillProviderList(providersList, providersMap, provider, country, 'flatrate');
-                  fillProviderList(providersList, providersMap, provider, country, 'rent');
-                  fillProviderList(providersList, providersMap, provider, country, 'buy');
-                  if(providersList.length == providerLen) break;
+                for (var provider in providers.providerList) {
+                  for (var country in countryList) {
+                    fillProviderList(providersList, providersMap, provider, country, 'flatrate');
+                    fillProviderList(providersList, providersMap, provider, country, 'rent');
+                    fillProviderList(providersList, providersMap, provider, country, 'buy');
+                    if(providersList.length == providerLen) break;
+                  }
+                }
+
+                for (var provider in providersList) {
+                  logoList.add(
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(8),
+                          topRight: Radius.circular(8),
+                          bottomLeft: Radius.circular(8),
+                          bottomRight: Radius.circular(8),
+                        ),
+                        image: DecorationImage(
+                          image: NetworkImage( provider ),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    )
+                  );
                 }
               }
 
-              for (var provider in providersList) {
-                logoList.add(
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(8),
-                        topRight: Radius.circular(8),
-                        bottomLeft: Radius.circular(8),
-                        bottomRight: Radius.circular(8),
-                      ),
-                      image: DecorationImage(
-                        image: NetworkImage( provider ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  )
-                );
-              }
-            }
-
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Card(
-                elevation: 7,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  children: [ 
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 150,
-                          height: 225,
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              bottomLeft: Radius.circular(10),
-                              bottomRight: Radius.circular(10),
-                            ),
-                            image: DecorationImage(
-                              image: NetworkImage(coverUrl),
-                              fit: BoxFit.cover,
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card(
+                  elevation: 7,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    children: [ 
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 150,
+                            height: 225,
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(10),
+                                bottomLeft: Radius.circular(10),
+                                bottomRight: Radius.circular(10),
+                              ),
+                              image: DecorationImage(
+                                image: NetworkImage(coverUrl),
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8, right: 8),
-                                child: Text(
-                                  title,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 8, right: 8),
+                                  child: Text(
+                                    title,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 4, right: 8),
-                                child: Wrap(
-                                  spacing: 6,
-                                  children: providersCountryList,
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4, right: 8),
+                                  child: Wrap(
+                                    spacing: 6,
+                                    children: providersCountryList,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const Text('', style: TextStyle(
-                      fontSize: 10,
-                    )),
-                    Expanded(
-                      child: Wrap(
-                        spacing: 5,
-                        children: logoList,
+                        ],
                       ),
-                    ),
-                  ]
+                      const Text('', style: TextStyle(
+                        fontSize: 10,
+                      )),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 5,
+                          children: logoList,
+                        ),
+                      ),
+                    ]
+                  ),
                 ),
-              ),
-            );
-          } else if (index < 100 && block == false) {
+              );
+            }
+          } else if (index < 100 && totalBlock == false) {
             fetchProviderData();
             pageIndex += 1;
           } else {
-            return const Center(child: Text('End of List'));
+            return const Text('');
           }
           return null;
         },
