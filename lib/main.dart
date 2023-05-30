@@ -75,7 +75,6 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
 
   void onTextChanged(String text) {
     setState(() {
-      print('reset');
       searchQuery = text;
       if(!totalBlock){
         resetView();
@@ -129,8 +128,6 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
     String url;
     List<Map<String, dynamic>> removeList = [];
     List<dynamic> responseList = [];
-
-    print(searchQuery);
 
     if(searchQuery.isNotEmpty){
       url = sprintf(globals.requests['search']!, [contentType, searchQuery, pageIndex.toString()]);
