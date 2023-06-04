@@ -1,6 +1,6 @@
 # netflixalizer
 
-A new Flutter project.
+Netflixalizer von Moritz Mögel am 31.05.2023
 
 ## Getting Started
 
