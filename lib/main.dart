@@ -332,6 +332,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  const SizedBox(width: 20),
                   TextButton(
                     onPressed: () {
                       filterButtonHandler(context);
@@ -345,7 +346,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
               width: 400, 
               child: TextField(
                 controller: _searchController,
-                onChanged: onTextChanged,
+                onSubmitted: onTextChanged,
                 decoration: InputDecoration(
                   hintText: 'Search',
                   prefixIcon: const Icon(Icons.search),
