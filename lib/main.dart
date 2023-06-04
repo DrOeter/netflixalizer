@@ -55,7 +55,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
     List<Map<String, dynamic>> removeList = [];
 
     for (var trend in trendingList) {
-      if(!trend['genre_ids'].contains(genre) && genre != 0){
+      if(!trend['genre_ids'].contains(genre)){
         removeList.add(trend);
       }
     }
@@ -144,7 +144,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
     block = true;
     trendingList.addAll(responseList);
     block = false;
-    removeByGenre();
+    if(genre != 0) removeByGenre();
 
     for (var i = lastIndex; i < trendingList.length; i++) {
       Map<String, dynamic> providersMap = {};
