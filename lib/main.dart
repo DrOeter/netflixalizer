@@ -34,21 +34,21 @@ class ScrollableWidget extends StatefulWidget {
 }
 
 class ScrollableWidgetState extends State<ScrollableWidget> {
-  int genre           = 0;
-  int genreMovie      = 0;
-  int genreTv         = 0;
+  final TextEditingController _searchController = TextEditingController();
+  List<dynamic> trendingList = [];
   String contentType  = 'movie';
   String titleKeyName = 'original_title';
   String timePeriod   = 'week';
   String searchQuery  = '';
+  int genre           = 0;
+  int genreMovie      = 0;
+  int genreTv         = 0;
   int lastIndex       = 0;
   int pageIndex       = 1;
   int providerLen     = 5;
   int countryLen      = 16;
   bool block          = false;
   bool totalBlock     = false;
-  List<dynamic> trendingList = [];
-  final TextEditingController _searchController = TextEditingController();
 
   void removeByGenre(){
     List<Map<String, dynamic>> removeList = [];
