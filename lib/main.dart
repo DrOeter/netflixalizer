@@ -102,7 +102,7 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
     }
   }
 
-  Future<void> fetchData(String url, String key, List<dynamic>? dataList, Map<String, dynamic>? dataMap) async {
+  Future<void> fetchData(String url, List<dynamic>? dataList, Map<String, dynamic>? dataMap) async {
     final response = await http.get(Uri.parse( url ));
 
     if (response.statusCode == 200) {
@@ -110,10 +110,10 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
 
       setState(() {
         if(dataList != null){
-          dataList.addAll(responseJson[key]);
+          dataList.addAll(responseJson['results']);
         }
         else if(dataMap != null){
-          dataMap.addAll(responseJson);
+          dataMap.addAll(responseJson['results']);
         }
       }); 
     } 
@@ -137,7 +137,6 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
     
     await fetchData(
       url,
-      'results',
       responseList,
       null
     );
@@ -150,14 +149,13 @@ class ScrollableWidgetState extends State<ScrollableWidget> {
       Map<String, dynamic> providersMap = {};
       await fetchData(
         sprintf(globals.requests['providers']!, [contentType, trendingList[i]['id'].toString()]),
-        'results',
         null,
         providersMap
       );
 
-      if(!providersMap['results'].isEmpty){
+      if(providersMap.isNotEmpty){
         trendingList[i]['providers'] = <String, dynamic>{};
-        trendingList[i]['providers'].addAll( providersMap['results'] );
+        trendingList[i]['providers'].addAll( providersMap );
       }
       else {
         removeList.add(trendingList[i]);
